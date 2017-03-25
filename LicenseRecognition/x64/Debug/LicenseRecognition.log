@@ -1,0 +1,40 @@
+﻿  MainForm.cpp
+d:\project\licenserecognition\licenserecognition\MainForm.h(2): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+d:\project\licenserecognition\licenserecognition\MainForm.h(3): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+d:\project\licenserecognition\licenserecognition\MainForm.h(4): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+d:\project\licenserecognition\licenserecognition\MainForm.h(5): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+d:\project\licenserecognition\licenserecognition\MainForm.h(6): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  PlateFinder.cpp
+d:\project\licenserecognition\licenserecognition\PlateFinder.h(2): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+d:\project\licenserecognition\licenserecognition\PlateFinder.h(3): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+d:\project\licenserecognition\licenserecognition\PlateFinder.h(4): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+d:\project\licenserecognition\licenserecognition\PlateFinder.h(5): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+d:\project\licenserecognition\licenserecognition\PlateFinder.h(6): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  Generating Code...
+d:\opencv\build\include\opencv2\core\cvstd.hpp(596): warning C4793: 'cv::String::String': function compiled as native:
+  	Found an intrinsic not supported in managed code
+d:\opencv\build\include\opencv2\core\mat.inl.hpp(413): warning C4793: 'cv::Mat::Mat': function compiled as native:
+  	Found an intrinsic not supported in managed code
+d:\opencv\build\include\opencv2\core\mat.inl.hpp(1929): warning C4793: 'cv::SparseMat::addref': function compiled as native:
+  	Found an intrinsic not supported in managed code
+d:\opencv\build\include\opencv2\core\mat.inl.hpp(3530): warning C4793: 'cv::UMat::addref': function compiled as native:
+  	Found an intrinsic not supported in managed code
+d:\opencv\build\include\opencv2\core\ptr.inl.hpp(67): warning C4793: 'cv::detail::PtrOwner::incRef': function compiled as native:
+  	Found an intrinsic not supported in managed code
+d:\opencv\build\include\opencv2\core\ptr.inl.hpp(72): warning C4793: 'cv::detail::PtrOwner::decRef': function compiled as native:
+  	Found an intrinsic not supported in managed code
+d:\opencv\build\include\opencv2\core\cvstd.hpp(596): warning C4793: 'cv::String::String': function compiled as native:
+  	Found an intrinsic not supported in managed code
+d:\opencv\build\include\opencv2\core\mat.inl.hpp(413): warning C4793: 'cv::Mat::Mat': function compiled as native:
+  	Found an intrinsic not supported in managed code
+d:\opencv\build\include\opencv2\core\mat.inl.hpp(1929): warning C4793: 'cv::SparseMat::addref': function compiled as native:
+  	Found an intrinsic not supported in managed code
+d:\opencv\build\include\opencv2\core\mat.inl.hpp(3530): warning C4793: 'cv::UMat::addref': function compiled as native:
+  	Found an intrinsic not supported in managed code
+d:\opencv\build\include\opencv2\core\ptr.inl.hpp(67): warning C4793: 'cv::detail::PtrOwner::incRef': function compiled as native:
+  	Found an intrinsic not supported in managed code
+d:\opencv\build\include\opencv2\core\ptr.inl.hpp(72): warning C4793: 'cv::detail::PtrOwner::decRef': function compiled as native:
+  	Found an intrinsic not supported in managed code
+  MainForm.obj : /DEBUG:FASTLINK is not supported when managed code is present; restarting link with /DEBUG:FULL
+  LicenseRecognition.vcxproj -> D:\PROJECT\LicenseRecognition\x64\Debug\LicenseRecognition.exe
+  LicenseRecognition.vcxproj -> D:\PROJECT\LicenseRecognition\x64\Debug\LicenseRecognition.pdb (Partial PDB)
