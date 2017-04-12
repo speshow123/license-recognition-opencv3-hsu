@@ -1,19 +1,27 @@
 #pragma once
-#include<opencv\cv.h>;
-#include<opencv\highgui.h>;
-#include<opencv\ml.h>;
-#include<opencv\cxcore.h>;
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/ml.hpp>
 #include<iostream>;
 using namespace std;
+using namespace cv;
+using namespace ml;
 class PlateFinder
 {
 private:
-	IplConvKernel *S1;
-	IplConvKernel *S2;
-	IplImage *plate;
+	Mat plate;
+	bool DEBUG;
+	Ptr<SVM> newSVM;
+	void learnSVM(string fileData);
+	char characterRecognition(Mat img_character);
+	Mat imgPreprocessing(Mat imgSrc); // image pre-prosessing
 public:
-	PlateFinder();
+	PlateFinder(string fileData, bool isDebug);
 	virtual ~PlateFinder();
-	void imageRestoration(IplImage *src); // image pre-prosessing
+	void setPlate(Mat plate);
+	Mat getPlate();
+	vector<Mat> findCharacters(Mat imgSrc);
+	string plateRecognition(vector<Mat> characters);
 };
 

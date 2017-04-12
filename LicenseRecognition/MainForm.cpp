@@ -3,10 +3,12 @@
 using namespace System;
 using namespace System::Windows::Forms;
 
-[STAThread]
-void Main(array<String^> ^args) {
+[STAThreadAttribute]
+void Main() {
+
 	Application::EnableVisualStyles();
 	Application::SetCompatibleTextRenderingDefault(false);
 	LicenseRecognition::MainForm form;
 	Application::Run(%form);
+
 }
