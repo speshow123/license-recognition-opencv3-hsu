@@ -4,7 +4,10 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/ml.hpp>
 #include<iostream>;
+#include "dirent.h";
+#include "feature.h";
 #include "PlateFinder.h";
+
 
 namespace LicenseRecognition {
 
@@ -51,7 +54,8 @@ namespace LicenseRecognition {
 	protected:
 	private: System::Windows::Forms::PictureBox^  pb_Source;
 	private: System::Windows::Forms::GroupBox^  groupBox1;
-	private: System::Windows::Forms::Button^  btn_ml;
+
+
 	private: System::Windows::Forms::Button^  btn_process;
 	private: System::Windows::Forms::Button^  btn_loadimage;
 	private: System::Windows::Forms::GroupBox^  groupBox2;
@@ -61,6 +65,7 @@ namespace LicenseRecognition {
 	private: System::Windows::Forms::Label^  label1;
 	private: System::Windows::Forms::PictureBox^  pb_Plate;
 	private: System::Windows::Forms::Label^  imgSize;
+	private: System::Windows::Forms::Button^  btn_learn;
 
 
 	private:
@@ -80,7 +85,7 @@ namespace LicenseRecognition {
 			this->imgSize = (gcnew System::Windows::Forms::Label());
 			this->pb_Source = (gcnew System::Windows::Forms::PictureBox());
 			this->groupBox1 = (gcnew System::Windows::Forms::GroupBox());
-			this->btn_ml = (gcnew System::Windows::Forms::Button());
+			this->btn_learn = (gcnew System::Windows::Forms::Button());
 			this->btn_process = (gcnew System::Windows::Forms::Button());
 			this->btn_loadimage = (gcnew System::Windows::Forms::Button());
 			this->groupBox2 = (gcnew System::Windows::Forms::GroupBox());
@@ -135,7 +140,7 @@ namespace LicenseRecognition {
 			// groupBox1
 			// 
 			this->groupBox1->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Right));
-			this->groupBox1->Controls->Add(this->btn_ml);
+			this->groupBox1->Controls->Add(this->btn_learn);
 			this->groupBox1->Controls->Add(this->btn_process);
 			this->groupBox1->Controls->Add(this->btn_loadimage);
 			this->groupBox1->Location = System::Drawing::Point(618, 324);
@@ -145,14 +150,15 @@ namespace LicenseRecognition {
 			this->groupBox1->TabStop = false;
 			this->groupBox1->Text = L"Control Bar";
 			// 
-			// btn_ml
+			// btn_learn
 			// 
-			this->btn_ml->Location = System::Drawing::Point(6, 77);
-			this->btn_ml->Name = L"btn_ml";
-			this->btn_ml->Size = System::Drawing::Size(142, 23);
-			this->btn_ml->TabIndex = 2;
-			this->btn_ml->Text = L"Machine Learning";
-			this->btn_ml->UseVisualStyleBackColor = true;
+			this->btn_learn->Location = System::Drawing::Point(6, 77);
+			this->btn_learn->Name = L"btn_learn";
+			this->btn_learn->Size = System::Drawing::Size(142, 23);
+			this->btn_learn->TabIndex = 2;
+			this->btn_learn->Text = L"Machine Learning";
+			this->btn_learn->UseVisualStyleBackColor = true;
+			this->btn_learn->Click += gcnew System::EventHandler(this, &MainForm::btn_learn_Click);
 			// 
 			// btn_process
 			// 
@@ -191,7 +197,7 @@ namespace LicenseRecognition {
 			// label2
 			// 
 			this->label2->AutoSize = true;
-			this->label2->Location = System::Drawing::Point(6, 113);
+			this->label2->Location = System::Drawing::Point(6, 100);
 			this->label2->Name = L"label2";
 			this->label2->Size = System::Drawing::Size(64, 13);
 			this->label2->TabIndex = 5;
@@ -200,10 +206,15 @@ namespace LicenseRecognition {
 			// tb_license
 			// 
 			this->tb_license->Enabled = false;
-			this->tb_license->Location = System::Drawing::Point(6, 129);
+			this->tb_license->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
+			this->tb_license->ForeColor = System::Drawing::Color::Red;
+			this->tb_license->Location = System::Drawing::Point(6, 123);
 			this->tb_license->Name = L"tb_license";
-			this->tb_license->Size = System::Drawing::Size(140, 20);
+			this->tb_license->RightToLeft = System::Windows::Forms::RightToLeft::No;
+			this->tb_license->Size = System::Drawing::Size(140, 26);
 			this->tb_license->TabIndex = 4;
+			this->tb_license->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
 			// 
 			// label1
 			// 
@@ -246,7 +257,7 @@ namespace LicenseRecognition {
 
 		}
 #pragma endregion
-/*	Load source image to Picture box
+/*
 * @Author: An Ngo Trieu Gia
 * @Date modified: 3/24/2017
 */
@@ -258,46 +269,23 @@ namespace LicenseRecognition {
 	private: char* convertStringToChars(System::String ^str) {
 		return (char*)(void*)Marshal::StringToHGlobalAnsi(str);
 	}
-	private:System::Drawing::Bitmap^ Mat2Bimap(cv::Mat &colorImage) {
-		//System::Drawing::Graphics^ graphics = control->CreateGraphics();
-		System::IntPtr ptr(colorImage.ptr());
-		Bitmap^ bmpImage;
-
-		switch (colorImage.type())
-		{
-		case CV_8UC3: // non-grayscale images are correctly displayed here
-			try {
-				bmpImage = gcnew Bitmap(colorImage.cols, colorImage.rows, colorImage.step,
-					Imaging::PixelFormat::Format24bppRgb, ptr);
-			}
-			catch (exception e) {
-
-			}
-			
-			break;
-		case CV_8UC1: // grayscale images are incorrectly displayed here 
-			bmpImage = gcnew Bitmap(colorImage.cols, colorImage.rows, colorImage.step,
-				Imaging::PixelFormat::Format8bppIndexed, ptr);
-			break;
-		default:
-			// error message
-			break;
-		}
-		return bmpImage;
-	}
+	
 	private: bool isCancel(System::Windows::Forms::DialogResult dlgResult) {
 		return dlgResult == System::Windows::Forms::DialogResult::Cancel;
 	}
+
 	private: void showSourceImage(System::String ^dlgFileName) {
 		Bitmap ^bmpScr = gcnew Bitmap(dlgFileName);
 		pb_Source->Image = bmpScr;
 		pb_Source->Refresh();
 	}
+
 	private: void showImageSize(cv::Mat imageSource) {
 		System::String^ height = gcnew System::String(std::to_string(imageSource.rows).c_str());
 		System::String^ width = gcnew System::String(std::to_string(imageSource.cols).c_str());
 		imgSize->Text = width + "x" + height;
 	}
+
 	private: System::Void btn_loadimage_Click(System::Object^  sender, System::EventArgs^  e) {
 		// gcnew help .NET know which Obj should be delete
 		OpenFileDialog^ openImageDialog = gcnew OpenFileDialog;
@@ -306,53 +294,44 @@ namespace LicenseRecognition {
 		openImageDialog->Filter = "Image (*.bmp; *.jpg; *.jpeg; *.png) |*.bmp; *.jpg; *.jpeg; *.png|All files (*.*)|*.*||";
 		if (isCancel(openImageDialog->ShowDialog()))
 			return;
-
+		if (tb_license->Text != "") {
+			tb_license->Text = "";
+			pb_Plate->Image = nullptr;
+			pb_Plate->Refresh();
+		}
+		
+		
 		showSourceImage(openImageDialog->FileName);
 
 		// New styles
 		// Need to write func to convert String to Char*
 		imgSrc = cv::imread(convertStringToChars(openImageDialog->FileName));
 		showImageSize(imgSrc);
-
-		// Need to write func to convert String to Char*
-		//src = cvLoadImage(convertStringToChars(openImageDialog->FileName));
-
-		/*PlateFinder pf;
-
-		if (!src)
-		{
-			MessageBox::Show("No image loaded", "Error", MessageBoxButtons::OK);
-			return;
-		}
-
-
-		// resize image
-		IplImage *resizeImg = cvCreateImage(cvSize(800, 600), src->depth, src->nChannels);	// Anh resize
-		cvResize(src, resizeImg);
-		// Convert sang anh xam
-		IplImage *grayImg = cvCreateImage (cvGetSize(resizeImg), IPL_DEPTH_8U, 1);	// Anh resize
-		cvCvtColor(resizeImg, grayImg, CV_RGB2GRAY);
-		cvNormalize(grayImg, grayImg, 0, 255, CV_MINMAX);
-
-		pf.imageRestoration(grayImg);*/
+		btn_process->Enabled = true;
+		
 	}
-	
+	/// <summary>
+	/// Detect image and regconise text
+	/// @Author: An Ngo Trieu Gia
+	/// @Date modified: 4 / 10 / 2017
+	/// </summary>
 	private: System::Void btn_process_Click(System::Object^  sender, System::EventArgs^  e) {
 		if (imgSrc.empty()) {
 			MessageBox::Show("No image loaded", "Error", MessageBoxButtons::OK);
 			return;
 		}
-		PlateFinder plate("svm.txt", false);
+		PlateFinder plate("TrainSVM.txt", true);
 		vector<Mat> characters = plate.findCharacters(imgSrc);
 		
 		/*pb_Plate->Image = Mat2Bimap(plate.getPlate());
 		pb_Plate->Refresh();*/
+		Mat platePicture = plate.getPlate();
 		if (characters.size() < 6)
 		{
 			MessageBox::Show("Cannot regconition", "Error", MessageBoxButtons::OK);
 			return;
 		}
-		Mat platePicture = plate.getPlate();
+		
 		
 		std::ostringstream name;
 		name << "test_" << count++ << ".bmp";
@@ -362,8 +341,141 @@ namespace LicenseRecognition {
 		pb_Plate->Image = bmpSrc;
 		pb_Plate->Refresh();
 		string license = plate.plateRecognition(characters);
-		System::String^ str = gcnew System::String(license.c_str());
-		tb_license->Text = str;
+		
+		if (license.length() > 6) {
+			System::String^ str = gcnew System::String(license.c_str());
+			tb_license->Text = str;
+			MessageBox::Show("Your license: " + str, "Car License",
+				MessageBoxButtons::OK, MessageBoxIcon::Information);
+			btn_process->Enabled = false;
+			return;
+		}
+		else {
+			MessageBox::Show("Cannot regconition", "Error", MessageBoxButtons::OK);
+			return;
+		}
+	}
+	private: vector<string> list_file(string folder_path)
+	{
+		vector<string> files;
+		DIR *dir = opendir(folder_path.c_str());
+		struct dirent *entry;
+		while ((entry = readdir(dir)) != NULL)
+		{
+			if ((strcmp(entry->d_name, ".") != 0) && (strcmp(entry->d_name, "..") != 0))
+			{
+				string file_path = folder_path + "/" + string(entry->d_name);
+				files.push_back(file_path);
+			}
+		}
+		closedir(dir);
+		return files;
+	}
+	private: vector<string> list_folder(string path)
+	{
+		vector<string> folders;
+		DIR *dir = opendir(path.c_str());
+		struct dirent *entry;
+		while ((entry = readdir(dir)) != NULL)
+		{
+			if ((strcmp(entry->d_name, ".") != 0) && (strcmp(entry->d_name, "..") != 0))
+			{
+				string folder_path = path + "/" + string(entry->d_name);
+				folders.push_back(folder_path);
+			}
+		}
+		closedir(dir);
+		return folders;
+
+	}
+	
+	private: bool TrainSVM(string trainImgpath) {
+		const int number_of_class = 30;
+		const int number_of_sample = 10;
+		const int number_of_feature = 32;
+
+		//Train SVM OpenCV 3.1
+		Ptr<SVM> svm = SVM::create();
+		svm->setType(SVM::C_SVC);
+		svm->setKernel(SVM::RBF);
+		svm->setGamma(0.5);
+		svm->setC(16);
+		svm->setTermCriteria(TermCriteria(TermCriteria::MAX_ITER, 100, 1e-6));
+
+		vector<string> folders = list_folder(trainImgpath);
+		if (folders.size() <= 0)
+		{
+			//do something
+			return false;
+		}
+		if (number_of_class != folders.size() || number_of_sample <= 0 || number_of_class <= 0)
+		{
+			//do something
+			return false;
+		}
+		Mat src;
+		Mat data = Mat(number_of_sample * number_of_class, number_of_feature, CV_32FC1);
+		Mat label = Mat(number_of_sample * number_of_class, 1, CV_32SC1);
+		int index = 0;
+		for (size_t i = 0; i < folders.size(); ++i)
+		{
+			vector<string> files = list_file(folders.at(i));
+			if (files.size() <= 0 || files.size() != number_of_sample)
+			{
+				return false;
+			}
+			string folder_path = folders.at(i);
+			string label_folder = folder_path.substr(folder_path.length() - 1);
+			for (size_t j = 0; j < files.size(); ++j)
+			{
+				src = imread(files.at(j));
+				if (src.empty())
+				{
+					return false;
+				}
+				vector<float> feature = calculate_feature(src);
+				for (size_t t = 0; t < feature.size(); ++t)
+					data.at<float>(index, t) = feature.at(t);
+				label.at<int>(index, 0) = i;
+				index++;
+			}
+		}
+		// SVM Train OpenCV 3.1
+		svm->trainAuto(ml::TrainData::create(data, ml::ROW_SAMPLE, label));
+		svm->save("svm.txt");
+		return true;
+	}
+	private: System::Void btn_learn_Click(System::Object^  sender, System::EventArgs^  e) {
+		FolderBrowserDialog^ folderOpen = gcnew FolderBrowserDialog();
+		if (folderOpen->ShowDialog() == System::Windows::Forms::DialogResult::Cancel)
+		{
+			return;
+		}
+
+		System::String^ sysImgpath;
+		sysImgpath = folderOpen->SelectedPath;
+		char cStr[50] = { 0 };
+		if (sysImgpath->Length < sizeof(cStr))
+			sprintf(cStr, "%s", sysImgpath);
+		std::string imgpath(cStr);
+
+		/*SaveFileDialog^ saveFile = gcnew SaveFileDialog();
+		if (saveFile->ShowDialog() == System::Windows::Forms::DialogResult::Cancel)
+		{
+			return;
+		}
+		System::String^ sysSaveimg = saveFile->FileName;
+		char cStr_[50] = { 0 };
+		if (sysSaveimg->Length < sizeof(cStr))
+			sprintf(cStr_, "%s", sysSaveimg);*/
+		//std::string savesvm(cStr_);
+
+		if (TrainSVM(imgpath))
+		{
+			MessageBox::Show("Training completed.");
+		}
+		else
+			MessageBox::Show("ERROR");
 	}
 };
 }

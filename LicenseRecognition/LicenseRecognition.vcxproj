@@ -33,6 +33,8 @@
     <ClCompile Include="PlateFinder.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dirent.h" />
+    <ClInclude Include="feature.h" />
     <ClInclude Include="MainForm.h">
       <FileType>CppForm</FileType>
     </ClInclude>

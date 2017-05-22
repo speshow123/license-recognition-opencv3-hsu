@@ -1,7 +1,11 @@
 #include "PlateFinder.h"
 
 
-
+/// <summary>
+/// Detect Plate
+/// @Author: An Ngo Trieu Gia
+/// @Date modified: 3 / 24 / 2017
+/// </summary>
 
 
 PlateFinder::PlateFinder(string learnData, bool isDebug)
@@ -38,6 +42,7 @@ int count_pixel(Mat img, bool black_pixel = true)
 vector<float> calculate_feature(Mat src)
 {
 	Mat img;
+	// convert to channel 1 if this picture is channel 3 (Color image)
 	if (src.channels() == 3)
 	{
 		cvtColor(src, img, CV_BGR2GRAY);
@@ -48,7 +53,7 @@ vector<float> calculate_feature(Mat src)
 		threshold(src, img, 100, 255, CV_THRESH_BINARY);
 	}
 
-	vector<float> r;
+	vector<float> features;
 	//vector<int> cell_pixel;
 	resize(img, img, Size(40, 40));
 	int h = img.rows / 4;
@@ -62,37 +67,39 @@ vector<float> calculate_feature(Mat src)
 			Mat cell = img(Rect(i, j, h, w));
 			int s = count_pixel(cell);
 			float f = (float)s / S;
-			r.push_back(f);
+			features.push_back(f);
 		}
 	}
 
 	for (int i = 0; i < 16; i += 4)
 	{
-		float f = r[i] + r[i + 1] + r[i + 2] + r[i + 3];
-		r.push_back(f);
+		float f = features[i] + features[i + 1] + features[i + 2] + features[i + 3];
+		features.push_back(f);
 	}
 
 	for (int i = 0; i < 4; ++i)
 	{
-		float f = r[i] + r[i + 4] + r[i + 8] + r[i + 12];
-		r.push_back(f);
+		float f = features[i] + features[i + 4] + features[i + 8] + features[i + 12];
+		features.push_back(f);
 	}
 
-	r.push_back(r[0] + r[5] + r[10] + r[15]);
-	r.push_back(r[3] + r[6] + r[9] + r[12]);
-	r.push_back(r[0] + r[1] + r[4] + r[5]);
-	r.push_back(r[2] + r[3] + r[6] + r[7]);
-	r.push_back(r[8] + r[9] + r[12] + r[13]);
-	r.push_back(r[10] + r[11] + r[14] + r[15]);
-	r.push_back(r[5] + r[6] + r[9] + r[10]);
-	r.push_back(r[0] + r[1] + r[2] + r[3] + r[4] + r[7] + r[8] + r[11] + r[12] + r[13] + r[14] + r[15]);
+	features.push_back(features[0] + features[5] + features[10] + features[15]);
+	features.push_back(features[3] + features[6] + features[9] + features[12]);
+	features.push_back(features[0] + features[1] + features[4] + features[5]);
+	features.push_back(features[2] + features[3] + features[6] + features[7]);
+	features.push_back(features[8] + features[9] + features[12] + features[13]);
+	features.push_back(features[10] + features[11] + features[14] + features[15]);
+	features.push_back(features[5] + features[6] + features[9] + features[10]);
+	features.push_back(features[0] + features[1] + features[2] + features[3] + features[4] 
+	+ features[7] + features[8] + features[11] + features[12] + features[13] + features[14] + features[15]);
 
-	return r; //32 feature
+	return features; //32 feature
 }
 void PlateFinder::learnSVM(string learnData) {
 	this->newSVM = SVM::create();
 	this->newSVM = SVM::load(learnData);
 }
+
 char PlateFinder::characterRecognition(Mat img_character)
 {
 	
@@ -100,10 +107,11 @@ char PlateFinder::characterRecognition(Mat img_character)
 	//SVM svmNew;
 	//svmNew.load("D:/svm.txt");
 	
+	// Defult character - cannot find
 	char c = '*';
 
 	vector<float> feature = calculate_feature(img_character);
-	// Open CV3.1
+	// Open CV3.2
 	Mat m = Mat(1, 32, CV_32FC1);
 	for (size_t i = 0; i < feature.size(); ++i)
 	{
@@ -119,11 +127,11 @@ char PlateFinder::characterRecognition(Mat img_character)
 	int ri = int(newSVM->predict(m)); // Open CV 3.1
 									  /*int ri = int(svmNew.predict(m));*/
 	if (ri >= 0 && ri <= 9)
-		c = (char)(ri + 48); //ma ascii 0 = 48
+		c = (char)(ri + 48); //ascii code 0 = 48
 	if (ri >= 10 && ri < 18)
-		c = (char)(ri + 55); //ma accii A = 5, --> tu A-H
+		c = (char)(ri + 55); //accii code A = 5, --> tu A-H
 	if (ri >= 18 && ri < 22)
-		c = (char)(ri + 55 + 2); //K-N, bo I,J
+		c = (char)(ri + 55 + 2); //K-N, except I,J
 	if (ri == 22) c = 'P';
 	if (ri == 23) c = 'S';
 	if (ri >= 24 && ri < 27)
@@ -139,10 +147,13 @@ bool isNotValidPlate(Mat image, Rect r) {
 	return r.width > image.cols / 2 || r.height > image.cols / 2 || r.width < 120 || r.height < 20
 		|| (double)r.width / r.height > 4.5 || (double)r.width / r.height < 3.5;
 }
+
 bool isValidCharacter(Rect charRect, Rect plateRect) {
 	return charRect.height > plateRect.height / 2 && charRect.width < plateRect.width / 8
 		&& charRect.width > 5 && plateRect.width > 15 && charRect.x > 5;
 }
+
+// Death code
 Mat PlateFinder::imgPreprocessing(Mat image) {
 	// Using Image Pyramids to bound area having letters
 	Mat gray, binary;
@@ -178,7 +189,7 @@ vector<Mat> PlateFinder::findCharacters(Mat image) {
 	vector<vector<Point> > plateContours;
 	vector<Vec4i> hierarchy;
 	Mat or_binary = binary.clone();
-
+	int count1 = 0;
 	findContours(binary, plateContours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
 	if (plateContours.size() <= 0) return {};
 	for (size_t i = 0; i < plateContours.size(); ++i)
@@ -190,7 +201,11 @@ vector<Mat> PlateFinder::findCharacters(Mat image) {
 		Mat _plate = sub_binary.clone();
 		vector<vector<Point> > CharContours;
 		vector<Vec4i> charHierarchy;
+
+		Mat sub_plate2 = image(plateRect);
+
 		findContours(sub_binary, CharContours, charHierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+		
 		if (CharContours.size() < 8) continue;
 		vector<Mat> characters;
 		vector<Rect> characters_rect;
@@ -226,10 +241,12 @@ vector<Mat> PlateFinder::findCharacters(Mat image) {
 
 			}
 			setPlate(sub_plate);
+			if (DEBUG)
+				imshow("Plate", sub_plate);
 			return characters;
 		}
+		
 	}
-
 	return {};
 }
 string PlateFinder::plateRecognition(vector<Mat> characters) {

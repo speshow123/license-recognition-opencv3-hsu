@@ -1,9 +1,12 @@
 ﻿  MainForm.cpp
 d:\project\licenserecognition\licenserecognition\MainForm.h(6): warning C4067: unexpected tokens following preprocessor directive - expected a newline
 d:\project\licenserecognition\licenserecognition\MainForm.h(7): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+d:\project\licenserecognition\licenserecognition\MainForm.h(8): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+d:\project\licenserecognition\licenserecognition\MainForm.h(9): warning C4067: unexpected tokens following preprocessor directive - expected a newline
 d:\project\licenserecognition\licenserecognition\PlateFinder.h(6): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-d:\project\licenserecognition\licenserecognition\MainForm.h(271): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-d:\project\licenserecognition\licenserecognition\MainForm.h(280): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+d:\project\licenserecognition\licenserecognition\MainForm.h(438): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+d:\project\licenserecognition\licenserecognition\MainForm.h(439): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+d:\project\licenserecognition\licenserecognition\MainForm.h(459): warning C4477: 'sprintf' : format string '%s' requires an argument of type 'char *', but variadic argument 1 has type 'System::String ^'
 d:\opencv\build\include\opencv2\core\cvstd.hpp(596): warning C4793: 'cv::String::String': function compiled as native:
   	Found an intrinsic not supported in managed code
 d:\opencv\build\include\opencv2\core\mat.inl.hpp(413): warning C4793: 'cv::Mat::Mat': function compiled as native:
