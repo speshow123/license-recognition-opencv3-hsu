@@ -38,6 +38,9 @@
     <ClInclude Include="feature.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DirDirectory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="MainForm.resx">

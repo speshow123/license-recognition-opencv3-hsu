@@ -4,7 +4,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/ml.hpp>
 #include<iostream>;
-#include "dirent.h";
+#include "DirDirectory.h";
 #include "feature.h";
 #include "PlateFinder.h";
 
@@ -20,7 +20,7 @@ namespace LicenseRecognition {
 	using namespace System::Runtime::InteropServices;
 
 	cv::Mat imgSrc;
-	int count = 0;
+	int num = 0;
 	/// <summary>
 	/// Summary for MainForm
 	/// </summary>
@@ -66,6 +66,7 @@ namespace LicenseRecognition {
 	private: System::Windows::Forms::PictureBox^  pb_Plate;
 	private: System::Windows::Forms::Label^  imgSize;
 	private: System::Windows::Forms::Button^  btn_learn;
+	private: System::Windows::Forms::CheckBox^  cb_debug;
 
 
 	private:
@@ -93,6 +94,7 @@ namespace LicenseRecognition {
 			this->tb_license = (gcnew System::Windows::Forms::TextBox());
 			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->pb_Plate = (gcnew System::Windows::Forms::PictureBox());
+			this->cb_debug = (gcnew System::Windows::Forms::CheckBox());
 			this->gImage->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pb_Source))->BeginInit();
 			this->groupBox1->SuspendLayout();
@@ -235,11 +237,22 @@ namespace LicenseRecognition {
 			this->pb_Plate->TabIndex = 0;
 			this->pb_Plate->TabStop = false;
 			// 
+			// cb_debug
+			// 
+			this->cb_debug->AutoSize = true;
+			this->cb_debug->Location = System::Drawing::Point(628, 175);
+			this->cb_debug->Name = L"cb_debug";
+			this->cb_debug->Size = System::Drawing::Size(88, 17);
+			this->cb_debug->TabIndex = 3;
+			this->cb_debug->Text = L"Debug Mode";
+			this->cb_debug->UseVisualStyleBackColor = true;
+			// 
 			// MainForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(784, 442);
+			this->Controls->Add(this->cb_debug);
 			this->Controls->Add(this->groupBox2);
 			this->Controls->Add(this->groupBox1);
 			this->Controls->Add(this->gImage);
@@ -254,6 +267,7 @@ namespace LicenseRecognition {
 			this->groupBox2->PerformLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pb_Plate))->EndInit();
 			this->ResumeLayout(false);
+			this->PerformLayout();
 
 		}
 #pragma endregion
@@ -320,7 +334,8 @@ namespace LicenseRecognition {
 			MessageBox::Show("No image loaded", "Error", MessageBoxButtons::OK);
 			return;
 		}
-		PlateFinder plate("TrainSVM.txt", true);
+		
+		PlateFinder plate("TrainSVM.txt", cb_debug->Checked);
 		vector<Mat> characters = plate.findCharacters(imgSrc);
 		
 		/*pb_Plate->Image = Mat2Bimap(plate.getPlate());
@@ -334,7 +349,7 @@ namespace LicenseRecognition {
 		
 		
 		std::ostringstream name;
-		name << "test_" << count++ << ".bmp";
+		name << "test_" << num++ << ".bmp";
 		imwrite(name.str(), plate.getPlate());
 		System::String^ str1 = gcnew System::String(name.str().c_str());
 		Bitmap ^bmpSrc = gcnew Bitmap(str1);
@@ -355,46 +370,13 @@ namespace LicenseRecognition {
 			return;
 		}
 	}
-	private: vector<string> list_file(string folder_path)
-	{
-		vector<string> files;
-		DIR *dir = opendir(folder_path.c_str());
-		struct dirent *entry;
-		while ((entry = readdir(dir)) != NULL)
-		{
-			if ((strcmp(entry->d_name, ".") != 0) && (strcmp(entry->d_name, "..") != 0))
-			{
-				string file_path = folder_path + "/" + string(entry->d_name);
-				files.push_back(file_path);
-			}
-		}
-		closedir(dir);
-		return files;
-	}
-	private: vector<string> list_folder(string path)
-	{
-		vector<string> folders;
-		DIR *dir = opendir(path.c_str());
-		struct dirent *entry;
-		while ((entry = readdir(dir)) != NULL)
-		{
-			if ((strcmp(entry->d_name, ".") != 0) && (strcmp(entry->d_name, "..") != 0))
-			{
-				string folder_path = path + "/" + string(entry->d_name);
-				folders.push_back(folder_path);
-			}
-		}
-		closedir(dir);
-		return folders;
-
-	}
 	
 	private: bool TrainSVM(string trainImgpath) {
-		const int number_of_class = 30;
-		const int number_of_sample = 10;
-		const int number_of_feature = 32;
+		const int numberOfClass = 30;
+		const int numberOfSample = 10;
+		const int numberOfFeature = 32;
 
-		//Train SVM OpenCV 3.1
+		//Train SVM OpenCV 3.2
 		Ptr<SVM> svm = SVM::create();
 		svm->setType(SVM::C_SVC);
 		svm->setKernel(SVM::RBF);
@@ -405,22 +387,23 @@ namespace LicenseRecognition {
 		vector<string> folders = list_folder(trainImgpath);
 		if (folders.size() <= 0)
 		{
-			//do something
+			// When click cancel
 			return false;
 		}
-		if (number_of_class != folders.size() || number_of_sample <= 0 || number_of_class <= 0)
+		if (numberOfClass != folders.size() || numberOfSample <= 0
+			|| numberOfClass <= 0)
 		{
-			//do something
+			MessageBox::Show("Training dataset is invalid.");
 			return false;
 		}
 		Mat src;
-		Mat data = Mat(number_of_sample * number_of_class, number_of_feature, CV_32FC1);
-		Mat label = Mat(number_of_sample * number_of_class, 1, CV_32SC1);
+		Mat data = Mat(numberOfSample * numberOfClass, number_of_feature, CV_32FC1);
+		Mat label = Mat(numberOfSample * numberOfClass, 1, CV_32SC1);
 		int index = 0;
 		for (size_t i = 0; i < folders.size(); ++i)
 		{
 			vector<string> files = list_file(folders.at(i));
-			if (files.size() <= 0 || files.size() != number_of_sample)
+			if (files.size() <= 0 || files.size() != numberOfSample)
 			{
 				return false;
 			}
@@ -440,9 +423,10 @@ namespace LicenseRecognition {
 				index++;
 			}
 		}
-		// SVM Train OpenCV 3.1
+		// SVM Train OpenCV 3.2
 		svm->trainAuto(ml::TrainData::create(data, ml::ROW_SAMPLE, label));
-		svm->save("svm.txt");
+		svm->save("TrainSVM.txt");
+		
 		return true;
 	}
 	private: System::Void btn_learn_Click(System::Object^  sender, System::EventArgs^  e) {

@@ -42,7 +42,7 @@ static vector<float> calculate_feature(Mat src)
 		threshold(src, img, 100, 255, CV_THRESH_BINARY);
 	}
 
-	vector<float> r;
+	vector<float> features;
 	//vector<int> cell_pixel;
 	resize(img, img, Size(40, 40));
 	int h = img.rows / 4;
@@ -56,32 +56,44 @@ static vector<float> calculate_feature(Mat src)
 			Mat cell = img(Rect(i, j, h, w));
 			int s = count_pixel(cell);
 			float f = (float)s / S;
-			r.push_back(f);
+			features.push_back(f);
 		}
 	}
 
 	for (int i = 0; i < 16; i += 4)
 	{
-		float f = r[i] + r[i + 1] + r[i + 2] + r[i + 3];
-		r.push_back(f);
+		float f = features[i] + features[i + 1] 
+			+ features[i + 2] + features[i + 3];
+		features.push_back(f);
 	}
 
 	for (int i = 0; i < 4; ++i)
 	{
-		float f = r[i] + r[i + 4] + r[i + 8] + r[i + 12];
-		r.push_back(f);
+		float f = features[i] + features[i + 4] 
+			+ features[i + 8] + features[i + 12];
+		features.push_back(f);
 	}
 
-	r.push_back(r[0] + r[5] + r[10] + r[15]);
-	r.push_back(r[3] + r[6] + r[9] + r[12]);
-	r.push_back(r[0] + r[1] + r[4] + r[5]);
-	r.push_back(r[2] + r[3] + r[6] + r[7]);
-	r.push_back(r[8] + r[9] + r[12] + r[13]);
-	r.push_back(r[10] + r[11] + r[14] + r[15]);
-	r.push_back(r[5] + r[6] + r[9] + r[10]);
-	r.push_back(r[0] + r[1] + r[2] + r[3] + r[4] + r[7] + r[8] + r[11] + r[12] + r[13] + r[14] + r[15]);
+	features.push_back(features[0] + features[5] 
+		+ features[10] + features[15]);
+	features.push_back(features[3] + features[6] 
+		+ features[9] + features[12]);
+	features.push_back(features[0] + features[1] 
+		+ features[4] + features[5]);
+	features.push_back(features[2] + features[3] 
+		+ features[6] + features[7]);
+	features.push_back(features[8] + features[9] 
+		+ features[12] + features[13]);
+	features.push_back(features[10] + features[11] 
+		+ features[14] + features[15]);
+	features.push_back(features[5] + features[6] 
+		+ features[9] + features[10]);
+	features.push_back(features[0] + features[1] + features[2] 
+		+ features[3] + features[4] + features[7] 
+		+ features[8] + features[11] + features[12] 
+		+ features[13] + features[14] + features[15]);
 
-	return r; //32 feature
+	return features; //32 feature
 }
 
 

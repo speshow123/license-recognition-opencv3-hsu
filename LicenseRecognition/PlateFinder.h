@@ -4,6 +4,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/ml.hpp>
 #include<iostream>;
+#include "feature.h";
 using namespace std;
 using namespace cv;
 using namespace ml;
